@@ -13,40 +13,78 @@ class StarterPage extends StatefulWidget {
 
 class _StarterPageState extends State<StarterPage>
     with TickerProviderStateMixin {
-  late AnimationController _dropController;
+  //late AnimationController _dropController;
   late AnimationController _separateController;
-  late Animation<Offset> _dropAnimation;
+  //late Animation<Offset> _dropAnimation;
+
+  late AnimationController _dropController1;
+  late AnimationController _dropController2;
+  late AnimationController _dropController3;
+
+  late Animation<Offset> _dropAnimation1;
+  late Animation<Offset> _dropAnimation2;
+  late Animation<Offset> _dropAnimation3;
 
   @override
   void initState() {
     super.initState();
 
-    _dropController = AnimationController(
+    // _dropController = AnimationController(
+    //   vsync: this,
+    //   duration: Duration(milliseconds: 2500),
+    // );
+
+    _dropController1 = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2500),
+      duration: Duration(milliseconds: 3000),
+    );
+    _dropController2 = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
+    );
+    _dropController3 = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000),
     );
 
     _separateController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: Duration(milliseconds: 1000),
     );
 
-    _dropAnimation = Tween<Offset>(
-      begin: Offset(0, -1.5),
-      end: Offset(0, 0),
-    ).animate(CurvedAnimation(parent: _dropController, curve: Curves.bounceOut));
+    _dropAnimation1 = Tween<Offset>(begin: Offset(0, -1.5), end: Offset(0, 0))
+        .animate(
+          CurvedAnimation(parent: _dropController1, curve: Curves.bounceOut),
+        );
+
+    _dropAnimation2 = Tween<Offset>(begin: Offset(0, -1.5), end: Offset(0, 0))
+        .animate(
+          CurvedAnimation(parent: _dropController2, curve: Curves.bounceOut),
+        );
+
+    _dropAnimation3 = Tween<Offset>(begin: Offset(0, -1.5), end: Offset(0, 0))
+        .animate(
+          CurvedAnimation(parent: _dropController3, curve: Curves.bounceOut),
+        );
 
     _startAnimation();
   }
 
   Future<void> _startAnimation() async {
-    await _dropController.forward();
+    _dropController1.forward();
+    await Future.delayed(Duration(milliseconds: 200));
+    _dropController2.forward();
+    await Future.delayed(Duration(milliseconds: 200));
+    _dropController3.forward();
+    await Future.delayed(Duration(milliseconds: 400));
     await _separateController.forward();
   }
 
   @override
   void dispose() {
-    _dropController.dispose();
+    _dropController1.dispose();
+    _dropController2.dispose();
+    _dropController3.dispose();
     _separateController.dispose();
     super.dispose();
   }
@@ -64,25 +102,22 @@ class _StarterPageState extends State<StarterPage>
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 48),
             width: maxWidth,
-            child: SlideTransition(
-              position: _dropAnimation,
-              child: Stack(
-                children: [
-                  AnimatedBuilder(
+            child: Stack(
+              children: [
+                SlideTransition(
+                  position: _dropAnimation1,
+                  child: AnimatedBuilder(
                     animation: Listenable.merge([
-                      _dropController,
+                      _dropController1,
                       _separateController,
                     ]),
                     builder: (_, __) {
-                      final dropProgress = _dropController.value;
+                      final dropProgress = _dropController1.value;
                       final separateProgress = _separateController.value;
 
                       final dropOffset = Offset(-65, -64);
 
-                      final targetOffset = Offset(
-                        0,
-                        0,
-                      );
+                      final targetOffset = Offset(0, 0);
                       final animatedOffset = Offset.lerp(
                         dropOffset,
                         targetOffset,
@@ -98,28 +133,28 @@ class _StarterPageState extends State<StarterPage>
                               ? dropOffset
                               : animatedOffset,
                           child: Transform.rotate(
-                            angle: rotation,
+                            angle: dropProgress < 1.0 ? 0 : rotation,
                             child: _card(),
                           ),
                         ),
                       );
                     },
                   ),
-                  AnimatedBuilder(
+                ),
+                SlideTransition(
+                  position: _dropAnimation2,
+                  child: AnimatedBuilder(
                     animation: Listenable.merge([
-                      _dropController,
+                      _dropController2,
                       _separateController,
                     ]),
                     builder: (_, __) {
-                      final dropProgress = _dropController.value;
+                      final dropProgress = _dropController2.value;
                       final separateProgress = _separateController.value;
 
                       final dropOffset = Offset(-65, -32);
 
-                      final targetOffset = Offset(
-                        -120,
-                        0,
-                      );
+                      final targetOffset = Offset(-120, 0);
                       final animatedOffset = Offset.lerp(
                         dropOffset,
                         targetOffset,
@@ -135,16 +170,22 @@ class _StarterPageState extends State<StarterPage>
                               ? dropOffset
                               : animatedOffset,
                           child: Transform.rotate(
-                            angle: rotation,
+                            angle: dropProgress < 1.0 ? 0 : rotation,
                             child: _card(),
                           ),
                         ),
                       );
                     },
                   ),
-                  Align(alignment: Alignment.center, child: _cardWithContent()),
-                ],
-              ),
+                ),
+                SlideTransition(
+                  position: _dropAnimation3,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: _cardWithContent(),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
